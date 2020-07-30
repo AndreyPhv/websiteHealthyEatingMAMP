@@ -283,8 +283,6 @@ showTabContent();
                     statusMessage.textContent = message.failure;
                 }
             });
-
-
         });
     }
 
