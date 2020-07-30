@@ -230,4 +230,90 @@ showTabContent();
     ).render();
 
 
+//WORK WITH SERVER
+    //FORMS
+
+    const forms = document.querySelectorAll('form');
+
+    const message = {
+        loading: 'Загрузка',
+        success: 'Спасибо! Скоро мы с вами свяжемся',
+        failure: 'Что-то пошло не так',
+    };
+
+    forms.forEach(item => {
+        postDate(item);
+    });
+
+    function postDate(form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const statusMessage = document.createElement('div');                  //добавляем элемент отображающий пользователю статуст отправки его обращения
+            statusMessage.classList.add('status');
+            statusMessage.textContent = message.loading;
+            form.append(statusMessage);
+
+            const request = new XMLHttpRequest();
+            request.open('POST', 'server.php');
+
+            //request.setRequestHeader('Content-type', 'multipart/form-data');    // multipart/form-data пишем потому что у нас new FormData(form). ПРИ ИСПОЛЬЗОВАНИИ FormData НАМ НЕ НУЖЕН ЗАГОЛОВОК Т.К. РАБОТАТЬ НЕ БУДЕТ, ПОЭТОМУ ЗАКОММЕНТИРОВАЛИ
+            request.setRequestHeader('Content-type', 'application/json');         //прописываем для второго варианта: работа с JSON форматом
+            const formData = new FormData(form);                                  //собираем все данные введенные в форму. всегда проверять что в форме в html в input-ах прописано name
+                                                                                  //надо formData перевести в формат JSON
+
+            const object = {};
+            formData.forEach(function(value, key) {
+                object[key] = value;
+            });
+
+            const json = JSON.stringify(object);
+
+            request.send(json);
+
+            request.addEventListener('load', () => {
+                if(request.status === 200) {
+                    console.log(request.response);
+                    statusMessage.textContent = message.success;
+                    form.reset();                                                //очищаем форму от введенных данных
+                    setTimeout(() => {                                           //убираем сообщение после отправки данные через 2сек
+                        statusMessage.remove();
+                    }, 2000);
+                } else {
+                    statusMessage.textContent = message.failure;
+                }
+            });
+
+
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 });
