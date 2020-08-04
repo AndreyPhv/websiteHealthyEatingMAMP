@@ -1,0 +1,22 @@
+{
+  "name": "healthyeating",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndreyPhv/websiteHhealthyEatingMAMP.git"
+  },
+  "author": "Andrey",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AndreyPhv/websiteHhealthyEatingMAMP/issues"
+  },
+  "homepage": "https://github.com/AndreyPhv/websiteHhealthyEatingMAMP#readme",
+  "devDependencies": {
+    "json-server": "^0.16.1"
+  }
+}
