@@ -196,38 +196,53 @@ showTabContent();
         }
     }
 
-    // const menuFitness = new MenuCard('img/tabs/vegy.jpg', 'ne zagruz', 'Меню "Фитнес"', 'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!', 229);
-    // menuFitness.render();
+    const getResource = async (url) => {
+        const res = await fetch(url);
 
-    new MenuCard(
-        'img/tabs/vegy.jpg', 
-        'ne zagruz', 
-        'Меню "Фитнес"', 
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!', 
-        9,
-        '.menu .container',
-        'menu__item'
-    ).render();
+        if (!res.ok) {
+            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+        }
 
-    new MenuCard(
-        'img/tabs/elite.jpg', 
-        'ne zagruz', 
-        'Меню “Премиум”', 
-        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!', 
-        14,
-        '.menu .container',
-        'menu__item'
-    ).render();
+        return await res.json();
+    };
 
-    new MenuCard(
-        'img/tabs/post.jpg', 
-        'ne zagruz', 
-        'Меню “Постное”', 
-        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.', 
-        21,
-        '.menu .container',
-        'menu__item'
-    ).render();
+    // getResource(' http://localhost:3000/menu')
+    //     .then(data => {
+    //         data.forEach(({img, altimg, title, descr, price}) => {             //деструкторизация
+    //             new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+    //         });
+    //     });
+
+    axios.get('http://localhost:3000/menu')
+        .then(data => {
+                    data.data.forEach(({img, altimg, title, descr, price}) => {             
+                        new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+                    });
+                });
+
+    // getResource(' http://localhost:3000/menu')                                    //это другой вариант генерировать карточки на сайте.
+    // .then(data => createCard(data));                                              //с ним мы лишаемся шаблонизации, но если надо что-то сгенерить
+                                                                                     //один раз, то можно и так
+    // function createCard (data) {
+    //     data.forEach(({img, altimg, title, descr, price}) => {
+    //         const element = document.createElement('div');
+
+    //         element.classList.add('menu__item');
+
+    //         element.innerHTML = `
+    //             <img src=${img} alt=${altimg}>
+    //             <h3 class="menu__item-subtitle">${title}</h3>
+    //             <div class="menu__item-descr">${descr}</div>
+    //             <div class="menu__item-divider"></div>
+    //             <div class="menu__item-price">
+    //                 <div class="menu__item-cost">Цена:</div>
+    //                 <div class="menu__item-total"><span>${price}</span> грн/день</div>
+    //             </div>
+    //         `;
+
+    //         document.querySelector('.menu .container').append(element);
+    //     });                        
+    // }
 
 
 //WORK WITH SERVER
@@ -242,10 +257,22 @@ showTabContent();
     };
 
     forms.forEach(item => {
-        postData(item);
+        bindPostData(item);
     });
 
-    function postData(form) {
+    const postData = async (url, data) => {
+        const res = await fetch(url, {             //ждем ответа сервера
+            method: 'POST',                
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: data,
+        });
+
+        return await res.json();                 //ждем преобразования в нужный формат
+    };
+
+    function bindPostData(form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -266,22 +293,19 @@ showTabContent();
             const formData = new FormData(form);                                  //собираем все данные введенные в форму. всегда проверять что в форме в html в input-ах прописано name
                                                                                   //надо formData перевести в формат JSON
 
-            const object = {};
-            formData.forEach(function(value, key) {
-                object[key] = value;
-            });
+            // const object = {};
+            // formData.forEach(function(value, key) {
+            //     object[key] = value;
+            // });
 
-            //const json = JSON.stringify(object);
+            const json = JSON.stringify(Object.fromEntries(formData.entries()));  //переводим в json то что получили в formData
 
-            //request.send(json);
-            fetch('server2.php', {
-                method: 'POST',                
-                headers: {
-                    'Content-type': 'application/json'
-                },
-                body: JSON.stringify(object),
-            })
-            .then(data => data.text())
+            // const obj = {a:23, b: 50};
+            // console.log(Object.entries(obj));
+
+
+
+            postData('http://localhost:3000/requests', json)
             .then(data => {
                 console.log(data);
                 showThanksModal(message.success);                
@@ -320,22 +344,79 @@ showTabContent();
         }, 2000);
     }
 
-//FETCH
-    // //fetch('https://jsonplaceholder.typicode.com/todos/1')
-
-    // fetch('https://jsonplaceholder.typicode.com/posts', {
-    //     method: 'POST',
-    //     body: JSON.stringify({name: 'Alex'}),
-    //     headers: {
-    //         'Content-type': 'application/json'
-    //     }
-    // })    
-    // .then(response => response.json())                         //встроенный метод Фетча для преобразования JSON в обычный объект, который мы уже можем использовать. возвращает промис     
-    // .then(json => console.log(json));
 
 
+    //fetch('db.json')
+    // fetch('http://localhost:3000/menu')    //после npx json-server --watch db.json  
+    //     .then(data => data.json())
+    //     .then(res => console.log(res));
 
 
+//SLIDER МОЙ ВАРИАНТ
+    const slides = document.querySelectorAll('.offer__slide'),
+          leftBtn = document.querySelector('.offer__slider-prev'),
+          rightBtn = document.querySelector('.offer__slider-next'),
+          allPicNum = slides.length;
+
+    let index = 0;
+
+    function hideAllSlide() {
+        slides.forEach(slide => {
+            slide.classList.add('hide');
+        });
+    }
+
+    function showSlide(index = 0) { 
+        hideAllSlide();
+
+        slides[index].classList.remove('hide');
+        slides[index].classList.add('show');
+    }
+
+    function innerAllPicNum() {
+        if (allPicNum < 10) {
+            document.querySelector('#total').innerHTML = `0${allPicNum}`;
+        } else {
+            document.querySelector('#total').innerHTML = `${allPicNum}`;
+        }
+    }
+
+    innerAllPicNum();
+
+    showSlide();
+
+    rightBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        index++;
+        if (index > allPicNum - 1) {index = 0;}
+        showSlide(index);
+
+        if (index <= 9){
+            document.querySelector('#current').innerHTML = `0${index + 1}`;
+        } else {
+            document.querySelector('#current').innerHTML = `${index + 1}`;
+        }
+    });
+
+    leftBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        index--;
+        if (index < 0) {index = allPicNum - 1;}
+        showSlide(index);
+
+        if (index <= 9){
+            document.querySelector('#current').innerHTML = `0${index + 1}`;
+        } else {
+            document.querySelector('#current').innerHTML = `${index + 1}`;
+        }
+    });
+
+// ---------------------------------------------------------------------------- КОНЕЦ МОЕГО ВАРИАНТА
+
+
+//SLIDER-карусель
 
 
 
