@@ -353,70 +353,144 @@ showTabContent();
 
 
 //SLIDER МОЙ ВАРИАНТ
-    const slides = document.querySelectorAll('.offer__slide'),
-          leftBtn = document.querySelector('.offer__slider-prev'),
-          rightBtn = document.querySelector('.offer__slider-next'),
-          allPicNum = slides.length;
+    // const slides = document.querySelectorAll('.offer__slide'),
+    //       leftBtn = document.querySelector('.offer__slider-prev'),
+    //       rightBtn = document.querySelector('.offer__slider-next'),
+    //       allPicNum = slides.length;
 
-    let index = 0;
+    // let index = 0;
 
-    function hideAllSlide() {
-        slides.forEach(slide => {
-            slide.classList.add('hide');
-        });
-    }
+    // function hideAllSlide() {
+    //     slides.forEach(slide => {
+    //         slide.classList.add('hide');
+    //     });
+    // }
 
-    function showSlide(index = 0) { 
-        hideAllSlide();
+    // function showSlide(index = 0) { 
+    //     hideAllSlide();
 
-        slides[index].classList.remove('hide');
-        slides[index].classList.add('show');
-    }
+    //     slides[index].classList.remove('hide');
+    //     slides[index].classList.add('show');
+    // }
 
-    function innerAllPicNum() {
-        if (allPicNum < 10) {
-            document.querySelector('#total').innerHTML = `0${allPicNum}`;
-        } else {
-            document.querySelector('#total').innerHTML = `${allPicNum}`;
-        }
-    }
+    // function innerAllPicNum() {
+    //     if (allPicNum < 10) {
+    //         document.querySelector('#total').innerHTML = `0${allPicNum}`;
+    //     } else {
+    //         document.querySelector('#total').innerHTML = `${allPicNum}`;
+    //     }
+    // }
 
-    innerAllPicNum();
+    // innerAllPicNum();
 
-    showSlide();
+    // showSlide();
 
-    rightBtn.addEventListener('click', (e) => {
-        e.preventDefault();
+    // rightBtn.addEventListener('click', (e) => {
+    //     e.preventDefault();
         
-        index++;
-        if (index > allPicNum - 1) {index = 0;}
-        showSlide(index);
+    //     index++;
+    //     if (index > allPicNum - 1) {index = 0;}
+    //     showSlide(index);
 
-        if (index <= 9){
-            document.querySelector('#current').innerHTML = `0${index + 1}`;
-        } else {
-            document.querySelector('#current').innerHTML = `${index + 1}`;
-        }
-    });
+    //     if (index <= 9){
+    //         document.querySelector('#current').innerHTML = `0${index + 1}`;
+    //     } else {
+    //         document.querySelector('#current').innerHTML = `${index + 1}`;
+    //     }
+    // });
 
-    leftBtn.addEventListener('click', (e) => {
-        e.preventDefault();
+    // leftBtn.addEventListener('click', (e) => {
+    //     e.preventDefault();
         
-        index--;
-        if (index < 0) {index = allPicNum - 1;}
-        showSlide(index);
+    //     index--;
+    //     if (index < 0) {index = allPicNum - 1;}
+    //     showSlide(index);
 
-        if (index <= 9){
-            document.querySelector('#current').innerHTML = `0${index + 1}`;
-        } else {
-            document.querySelector('#current').innerHTML = `${index + 1}`;
-        }
-    });
+    //     if (index <= 9){
+    //         document.querySelector('#current').innerHTML = `0${index + 1}`;
+    //     } else {
+    //         document.querySelector('#current').innerHTML = `${index + 1}`;
+    //     }
+    // });
 
 // ---------------------------------------------------------------------------- КОНЕЦ МОЕГО ВАРИАНТА
 
 
 //SLIDER-карусель
+
+    const slides = document.querySelectorAll('.offer__slide'),
+          prev = document.querySelector('.offer__slider-prev'),
+          next = document.querySelector('.offer__slider-next'),
+          total = document.querySelector('#total'),
+          current = document.querySelector('#current'),
+          slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+          slidesField = document.querySelector('.offer__slider-inner'),
+          width = window.getComputedStyle(slidesWrapper).width;
+
+    let slideIndex = 1,
+        offset = 0;
+
+    if (slides.length < 10) {
+        total.textContent = `0${slides.length}`;
+        current.textContent = `0${slideIndex}`;
+    } else {
+        total.textContent = slides.length;
+        current.textContent = slideIndex;
+    }
+
+    slidesField.style.width = 100 * slides.length + '%';
+    slidesField.style.display = 'flex';
+    slidesField.style.transition = '0.5s all';
+
+    slidesWrapper.style.overflow = 'hidden';
+
+    slides.forEach(slide => {
+        slide.style.width = width;
+    });
+
+    next.addEventListener('click', () => {
+        if( offset == +width.slice(0, width.length - 2) * (slides.length - 1)){
+            offset = 0;
+        } else {
+            offset += +width.slice(0, width.length - 2);
+        }
+
+        slidesField.style.transform = `translateX(-${offset}px)`;
+
+        if (slideIndex == slides.length) {
+            slideIndex = 1;
+        } else {
+            slideIndex++;
+        }
+
+        if (slides.length < 10) {
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = `${slideIndex}`;
+        }
+    });
+
+    prev.addEventListener('click', () => {
+        if(offset == 0){
+            offset = +width.slice(0, width.length - 2) * (slides.length - 1);            
+        } else {
+            offset -= +width.slice(0, width.length - 2);
+        }
+
+        slidesField.style.transform = `translateX(-${offset}px)`;
+
+        if (slideIndex == 1) {
+            slideIndex = slides.length;
+        } else {
+            slideIndex--;
+        }
+
+        if (slides.length < 10) {
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = `${slideIndex}`;
+        }
+    });
 
 
 
